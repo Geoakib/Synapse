@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SYNAPSE | Digital Twin</title>
+
+    <!-- Fonts & Libraries -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Outfit:wght@700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="/static/styles.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cytoscape/3.26.0/cytoscape.min.js"></script>
+    <script src="https://unpkg.com/layout-base/layout-base.js"></script>
+    <script src="https://unpkg.com/cose-base/cose-base.js"></script>
+    <script src="https://unpkg.com/cytoscape-fcose/cytoscape-fcose.js"></script>
+</head>
+
+<body>
+
+    <!-- Left Sidebar with all controls -->
+    <div class="left-sidebar glass-panel">
+        <!-- Header Section -->
+        <div class="sidebar-section header-section">
+            <img src="/static/nano_banana.png" class="app-logo" alt="Nano Banana">
+            <h1>SYNAPSE</h1>
+        </div>
+
+        <!-- Analysis Mode Section -->
+        <div class="sidebar-section">
+            <h3 class="section-title">Analysis Mode</h3>
+            <select class="layout-select" onchange="changeAnalysisMode(this.value)" id="analysis-mode-select" title="Select Status Analysis Logic">
+                <option value="simple">Simple (Basic Health)</option>
+                <option value="structural">Structural (Graph Theory)</option>
+                <option value="complexity">Complexity (Code Quality)</option>
+                <option value="hotspot">Hotspot (Complexity × Churn)</option>
+                <option value="instability">Instability (Martin's I)</option>
+                <option value="comprehensive">Comprehensive (Weighted)</option>
+                <option value="gatekeeper">Gatekeeper (Pre-Checks)</option>
+            </select>
+        </div>
+
+        <!-- Legend Section -->
+        <div class="sidebar-section">
+            <h3 class="section-title">Status Legend</h3>
+            <div class="legend" id="status-legend">
+                <div class="status-item"><span class="dot dot-active"></span> ACTIVE</div>
+                <div class="status-item"><span class="dot dot-warning"></span> RISK</div>
+                <div class="status-item"><span class="dot dot-down"></span> CRITICAL</div>
+            </div>
+        </div>
+
+        <!-- Search Section -->
+        <div class="sidebar-section">
+            <h3 class="section-title">Search</h3>
+            <div class="search-container">
+                <input type="text" id="node-search" placeholder="Locate file..." oninput="searchNodes(this.value)">
+                <div class="search-icon">🔍</div>
+            </div>
+        </div>
+
+        <!-- Filter Section -->
+        <div class="sidebar-section">
+            <h3 class="section-title">Filter Types</h3>
+            <select class="layout-select" onchange="filterGraph(this.value)" title="Filter by File Type">
+                <option value="all">All Files</option>
+                <option value="py">Python (.py)</option>
+                <option value="js,jsx,ts,tsx">JavaScript/TS</option>
+                <option value="html">HTML</option>
+                <option value="css,scss">CSS/SCSS</option>
+            </select>
+        </div>
+
+        <!-- Layout Controls Section -->
+        <div class="sidebar-section">
+            <h3 class="section-title">Layout</h3>
+            <select class="layout-select" onchange="changeLayout(this.value)" title="Change Layout">
+                <option value="fcose">🔬 Physics (Fast)</option>
+                <option value="force-atlas">⚛️ Force Atlas</option>
+                <option value="cose">🌐 Physics (Balanced)</option>
+                <option value="grouped">📦 Grouped by Folder</option>
+                <option value="circle">⭕ Circle</option>
+                <option value="grid">📊 Grid</option>
+                <option value="breadthfirst">🌲 Hierarchy</option>
+                <option value="concentric">🎯 Concentric</option>
+                <option value="random">🎲 Random</option>
+            </select>
+        </div>
+
+        <!-- View Controls Section -->
+        <div class="sidebar-section">
+            <h3 class="section-title">View Controls</h3>
+            <div class="control-group horizontal">
+                <button class="tool-btn" onclick="cy.zoom(cy.zoom() * 1.2)" title="Zoom In">➕</button>
+                <button class="tool-btn" onclick="cy.zoom(cy.zoom() / 1.2)" title="Zoom Out">➖</button>
+                <button class="tool-btn" onclick="cy.fit(null, 50)" title="Fit Graph">⛶</button>
+            </div>
+        </div>
+
+        <!-- Node Detail Section (Dynamic) -->
+        <div id="detail-panel" class="sidebar-section hidden">
+            <h3 class="section-title" id="detail-name">File Info</h3>
+            <div class="detail-row"><span>Status</span> <span class="detail-val" id="detail-status">-</span></div>
+            <div class="detail-row"><span>Dependencies</span> <span class="detail-val" id="detail-deps">-</span></div>
+            <div class="detail-row"><span>Dependents</span> <span class="detail-val" id="detail-rev-deps">-</span></div>
+        </div>
+
+        <!-- Actions Section -->
+        <div class="sidebar-section">
+            <h3 class="section-title">Actions</h3>
+            <div class="control-group">
+                <button class="tool-btn" onclick="exportToPNG()">📷 Export</button>
+                <button class="tool-btn" onclick="changeDirectory()" title="Switch project folder">📁 Directory</button>
+                <button class="tool-btn" onclick="showCycles()" title="Highlight circular dependencies">🔄
+                    Cycles</button>
+                <button class="tool-btn primary" onclick="rescan()">⟳ Rescan</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="loader">INITIALIZING ENGINE...</div>
+    <div id="cy"></div>
+
+    <script src="/static/app.js"></script>
+
+</body>
+
+</html>
